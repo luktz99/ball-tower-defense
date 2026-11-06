@@ -90,6 +90,11 @@
   .menuRow button:disabled { background:#555; cursor:default; }
   .boxBtnStyle { background:linear-gradient(90deg,#8e24aa,#d81b60) !important; }
   .hint2 { font-size:13px; opacity:.7; max-width:600px; }
+  #giftBanner { border:3px solid #ffd740; border-radius:16px; padding:10px 22px; cursor:pointer; color:#fff; font-size:18px;
+     background:linear-gradient(90deg,#8e24aa,#d81b60,#ff6f00); box-shadow:0 0 24px #ffd74099; animation:giftPulse 1.4s ease-in-out infinite; }
+  #giftBanner b { color:#ffe57f; }
+  #giftBanner small { display:block; font-size:12px; opacity:.85; margin-top:2px; }
+  @keyframes giftPulse { 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.05) } }
 
   /* Mystery Box */
   #boxGift { font-size:150px; line-height:1; filter:drop-shadow(0 0 30px #e040fbaa); cursor:pointer; }
@@ -209,6 +214,7 @@
 <!-- Hauptmenü -->
 <div class="overlay" id="menuScreen"><div class="inner">
   <h2 class="title">⚽ Ball Tower Defense</h2>
+  <button id="giftBanner" class="hidden">🎁 Geschenk für alle Spieler: <b>+5.000 💎 Kristalle!</b><small>Viel Spaß beim Mystery-Boxen öffnen · tippen zum Schließen</small></button>
   <div class="gems">💎 <span id="menuGems">0</span> Kristalle</div>
   <h3>🗺️ Map wählen</h3>
   <div class="cards" id="mapList"></div>
@@ -275,6 +281,10 @@ const SAVE_KEY = 'btd_save_v2';
 let save = { gems:75, towers:[], anims:['standard'], anim:'standard', best:{}, map:'wiese', diff:'normal', muted:false, seen:[] };
 try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s) save = Object.assign(save, s); } catch(e){}
 function persist(){ try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch(e){} }
+// Einmaliges Geschenk für alle Spieler (auch bestehende Spielstände) – nur ein einziges Mal pro Gerät
+const GIFT_GEMS = 5000;
+let giftJustGiven = false;
+if (!save.gift5k){ save.gift5k = true; save.gems += GIFT_GEMS; giftJustGiven = true; persist(); }
 
 // =====================================================================
 //  Maps
@@ -1320,6 +1330,8 @@ function startGame(){
   show(null); running=true;
 }
 $('playBtn').onclick=startGame;
+if (giftJustGiven) $('giftBanner').classList.remove('hidden');
+$('giftBanner').onclick=()=>$('giftBanner').classList.add('hidden');
 $('againBtn').onclick=startGame;
 $('overMenuBtn').onclick=goMenu;
 // Während einer laufenden Runde fragt der Button einmal nach (zweimal tippen = wirklich raus)
